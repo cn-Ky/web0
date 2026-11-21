@@ -1,0 +1,48 @@
+name: Web0 - Uc Platform Derleme
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    tags: [ "v*" ]
+  workflow_dispatch: {}
+
+jobs:
+  derle:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            isim: web0-linux-x86_64
+            ikili: web0
+          - os: windows-latest
+            isim: web0-windows-x86_64
+            ikili: web0.exe
+          - os: macos-latest
+            isim: web0-macos-arm64
+            ikili: web0
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust kur
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Linux - OpenSSL gelistirme paketlerini kur
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get update && sudo apt-get install -y libssl-dev pkg-config
+
+      - name: Derle (release)
+        run: cargo build --release
+
+      - name: Paketle
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp target/release/${{ matrix.ikili }} dist/
+          cp README.md dist/ 2>/dev/null || true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.isim }}
+          path: dist/
