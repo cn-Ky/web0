@@ -36,6 +36,56 @@ bağımsız (standalone) çalıştırılabilir dosya olarak çalışır.
 - crt.sh üzerinden pasif alt alan adı keşfi
 - JSON ve görsel HTML rapor çıktısı
 
+## Derleme
+
+Gereksinim: [Rust](https://www.rust-lang.org/tools/install) (stabil kanal).
+
+```bash
+cargo build --release
+```
+
+Çıktı: `target/release/web0` (Windows'ta `web0.exe`).
+
+`native-tls` kütüphanesi her platformda kendi yerel TLS alt yapısını
+kullanır, bu yüzden ekstra bir şey kurmanıza gerek yoktur:
+
+| Platform | TLS arka ucu          | Ek gereksinim                          |
+|----------|-----------------------|------------------------------------------|
+| Linux    | OpenSSL                | `libssl-dev` (Debian/Ubuntu) veya `openssl-devel` (Fedora) + `pkg-config` |
+| Windows  | Schannel (yerleşik)    | yok — sadece Rust ve MSVC build tools  |
+| macOS    | Security.framework     | yok — sadece Rust ve Xcode Komut Satırı Araçları |
+
+### Linux'ta derleme öncesi
+
+```bash
+sudo apt-get install -y libssl-dev pkg-config   # Debian/Ubuntu
+# veya
+sudo dnf install -y openssl-devel pkgconf       # Fedora
+```
+
+### Windows'ta derleme
+
+Rust'ı [rustup](https://rustup.rs) ile kurduktan sonra proje klasöründe:
+
+```powershell
+cargo build --release
+```
+
+### macOS'ta derleme
+
+```bash
+xcode-select --install   # Komut satırı araçları yoksa
+cargo build --release
+```
+
+### Otomatik üç platform derlemesi (GitHub Actions)
+
+Bu depo `.github/workflows/derle.yml` içinde hazır bir CI workflow'u
+içerir. Depoyu GitHub'a push ettiğinizde (veya `v1.0.0` gibi bir etiket
+attığınızda), GitHub'ın kendi Linux/Windows/macOS makinelerinde otomatik
+olarak native derleme yapılır ve üç platformun binary'leri "Actions" ya da
+"Releases" sekmesinden indirilebilir hale gelir — sizin elinizde üç ayrı
+işletim sistemi olmasına gerek kalmaz.
 
 ## Kullanım
 
